@@ -9,6 +9,6 @@ public:
     
     const uint8_t pin;
     
-    void setLevel();
-    void begin(const uint8_t level);
+    void commit();
+    void begin(const uint8_t brightness);
 };
