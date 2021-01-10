@@ -6,21 +6,20 @@ MqttMOSFETLight::MqttMOSFETLight(uint8_t pin_a, MqttController &mqtt, const char
 { ;
 }
 
-void MqttMOSFETLight::setLevel()
+void MqttMOSFETLight::commit()
 {
-    uint8_t newlevel;
     if(state) {
-        newlevel = level;
+        analogWrite(pin,NonlinearLight::toPWM(brightness, min_pwm, max_pwm));
     } else {
-        newlevel = 0;
+        analogWrite(pin,NonlinearLight::toPWM(0, min_pwm, max_pwm));
     }
-    analogWrite(pin,NonlinearLight::toPWM(newlevel, min_pwm, max_pwm));
-    reportLevel(newlevel);
+    
+    report();
 }
 
-void MqttMOSFETLight::begin(const uint8_t level)
+void MqttMOSFETLight::begin(const uint8_t brightness)
 {
     digitalWrite(pin, LOW);
     pinMode(pin, OUTPUT);
-    MqttBaseLight::begin(level);
+    MqttBaseLight::begin(brightness);
 }

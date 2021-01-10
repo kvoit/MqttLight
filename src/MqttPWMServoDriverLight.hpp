@@ -13,6 +13,5 @@ public:
     const uint8_t pwmnum;
     const uint16_t pwm_offset;
     
-    void setLevel();
-    void begin(const uint8_t level);
+    void commit();
 };

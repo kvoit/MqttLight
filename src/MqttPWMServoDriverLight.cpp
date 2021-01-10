@@ -6,14 +6,13 @@ MqttPWMServoDriverLight::MqttPWMServoDriverLight(Adafruit_PWMServoDriver &pwm_a,
 { ;
 }
     
-void MqttPWMServoDriverLight::setLevel()
+void MqttPWMServoDriverLight::commit()
 {
-    uint8_t newlevel;
     if(state) {
-        newlevel = level;
+        pwm.setPWM(pwmnum, pwm_offset, (pwm_offset + NonlinearLight::toPWM(brightness, min_pwm, max_pwm))%4096);
     } else {
-        newlevel = 0;
+        pwm.setPWM(pwmnum, pwm_offset, (pwm_offset + NonlinearLight::toPWM(0, min_pwm, max_pwm))%4096);
     }
-    pwm.setPWM(pwmnum, pwm_offset, (pwm_offset + NonlinearLight::toPWM(newlevel, min_pwm, max_pwm))%4096);
-    reportLevel(newlevel);
+
+    report();
 }

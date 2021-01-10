@@ -2,168 +2,153 @@
 
 void MqttBaseLight::begin()
 {
-    begin(defaultLevel);
+    begin(brightness);
 }
 
-void MqttBaseLight::begin(const uint8_t level)
+void MqttBaseLight::begin(const uint8_t brightness)
 {
-    setBrightness(level);
-    setLevel();
+    setBrightness(brightness);
+    commit();
 }
 
-bool presentMessage(const char *topic,const char *payload)
+bool MqttBaseLight::presentMessage(const char *topic,const char *payload)
 {
     if(!strncmp(topic,this->getMQTTTopic(),baselength)) {
-        if(!strcmp(&topic[baselength],"/brightness")) {
-            if ( !strcmp(p_payload, "DECREASE") )
+        if(!strcmp(&topic[baselength],"/brightness/set")) {
+            if ( !strcmp(payload, "DECREASE") )
             {
                 decreaseBrightness();
-                setLevel();
+                commit();
                 return true;
             }
-            else if ( !strcmp(p_payload, "INCREASE") )
+            else if ( !strcmp(payload, "INCREASE") )
             {
                 increaseBrightness();
-                setLevel();
+                commit();
                 return true;
             }
             else
             {
-                uint8_t bright_val = atof(p_payload);
+                uint8_t bright_val = atof(payload);
                 setBrightness(bright_val);
-                setLevel();
+                commit();
                 return true;
             }
         }
-        else if(!strcmp(&topic[baselength],"/control")) {
-            if ( !strcmp(p_payload, "ON") )
+        else if(!strcmp(&topic[baselength],"/switch/set")) {
+            if ( !strcmp(payload, "ON") || !strcmp(payload, "on") )
             {
                 switchOn();
-                setLevel();
+                commit();
                 return true;
             }
-            else if ( !strcmp(p_payload, "OFF") )
+            else if ( !strcmp(payload, "OFF") || !strcmp(payload, "off") )
             {
                 switchOff();
-                setLevel();
+                commit();
                 return true;
             }
+        } else {
+
         }
     }
     return false;
 }
 
-bool MqttBaseLight::parsePayload(const char *p_payload)
+
+uint8_t MqttBaseLight::getBrightness()
 {
-    return false;
+    return brightness;
 }
 
-uint8_t MqttBaseLight::getLevel()
+void MqttBaseLight::decreaseBrightness(uint8_t changebrightness)
 {
-    return level;
-}
-
-void MqttBaseLight::decreaseBrightness(uint8_t change)
-{
-    
-    
-    if (level > change) {
-        level -= change;
+    if (brightness > changebrightness) {
+        setBrightness(brightness-changebrightness);
     } else {
-        level = 1;
+        setBrightness(1);
     }
 }
 
-void MqttBaseLight::increaseBrightness(uint8_t change)
+void MqttBaseLight::increaseBrightness(uint8_t changebrightness)
 {
-    
-    
-    if (100 - level > change) {
-        level += change;
+    if (100 - brightness > changebrightness) {
+        setBrightness(brightness-changebrightness);
     } else {
-        level = 100;
+        setBrightness(100);
     }
 }
 
-void MqttBaseLight::decreaseBrightness()
+void MqttBaseLight::changeBrightness(int8_t changebrightness)
 {
-    decreaseBrightness(4);
-}
-
-void MqttBaseLight::increaseBrightness()
-{
-    increaseBrightness(4);
-}
-
-void MqttBaseLight::changeBrightness(int8_t change)
-{
-    if (change > 0) {
-        increaseBrightness(change);
+    if (changebrightness > 0) {
+        increaseBrightness(changebrightness);
     } else {
-        decreaseBrightness(-1*change);
+        decreaseBrightness(-1*changebrightness);
     }
 }
 
-void MqttBaseLight::setBrightness(int8_t bright_val)
+void MqttBaseLight::setBrightness(int8_t setbrightness)
 {
-    level = bright_val;
+    brightness = setbrightness;
+    if(brightness>0) {
+        state = true;
+    } else {
+        state = false;
+    }
+        
 }
 
 void MqttBaseLight::switchOn()
 {
-    level = lastLevel;
+    state = true;
 }
 
 void MqttBaseLight::switchOff()
 {
-    if (level>0)
-    {
-        lastLevel = level;
-        level = 0;
-    }
+    state = false;
 }
 
 void MqttBaseLight::toggleOnOff()
 {
-    if (level==0)
-    {  
-        switchOn();
-    }
-    else
-    {
-        switchOff();
-    }
+    state = !state;
 }
 
-const char* MqttBaseLight::getMQTTTopic()
+void MqttBaseLight::report()
 {
-    return mqtt_topic;
-}
+    uint8_t newbrightness = brightness;
+    if(!state)
+        newbrightness = 0;
 
-const char* MqttBaseLight::getMQTTStateTopic()
-{
-    return mqtt_state_topic;
-}
-
-void MqttBaseLight::reportLevel(uint8_t newlevel)
-{
-    if (setCallback) {
-        setCallback(level);
+    if (reportCallback) {
+        reportCallback(newbrightness);
     }
+
+    uint8_t topiclength = baselength+1+12;
+    char statetopic[topiclength];
+    strncpy(statetopic,this->getMQTTTopic(),baselength);
 
     char pubchar[5];
-    sprintf(pubchar, "%d", (int)(newlevel));
-    if (mqtt.sendMessage(getMQTTStateTopic(), pubchar, true))
+
+    strncpy(&statetopic[baselength],"/switch",topiclength-baselength-1);
+    strncpy(pubchar,state?"ON":"OFF",5);
+    if (mqtt_controller.sendMessage(statetopic, pubchar, true))
     { ;
     } else
     { ;
     }
+    mqtt_controller.handle();
+
+    strncpy(&statetopic[baselength],"/brightness",topiclength-baselength-1);
+    sprintf(pubchar, "%d", newbrightness);
+    if (mqtt_controller.sendMessage(statetopic, pubchar, true))
+    { ;
+    } else
+    { ;
+    }
+    mqtt_controller.handle();
 }
 
-void MqttBaseLight::setReportCallback(void (*setCallback)(uint8_t)) {
-    this->setCallback = setCallback;
+void MqttBaseLight::setReportCallback(void (*reportCallback)(uint8_t)) {
+    this->reportCallback = reportCallback;
 }
-
-// void MqttBaseLight::setLevel()
-// { ;
-// }
