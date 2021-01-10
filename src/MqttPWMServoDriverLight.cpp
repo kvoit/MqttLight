@@ -8,6 +8,12 @@ MqttPWMServoDriverLight::MqttPWMServoDriverLight(Adafruit_PWMServoDriver &pwm_a,
     
 void MqttPWMServoDriverLight::setLevel()
 {
-    pwm.setPWM(pwmnum, pwm_offset, (pwm_offset + NonlinearLight::toPWM(level, min_pwm, max_pwm))%4096);
-    reportLevel();
+    uint8_t newlevel;
+    if(state) {
+        newlevel = level;
+    } else {
+        newlevel = 0;
+    }
+    pwm.setPWM(pwmnum, pwm_offset, (pwm_offset + NonlinearLight::toPWM(newlevel, min_pwm, max_pwm))%4096);
+    reportLevel(newlevel);
 }

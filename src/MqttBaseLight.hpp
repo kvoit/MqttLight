@@ -20,6 +20,8 @@ public:
     const char* mqtt_topic;
     char mqtt_state_topic[64] = {};
 
+    bool state = false;
+    
     const uint8_t defaultLevel;
     uint8_t level;
     uint8_t lastLevel;
@@ -34,6 +36,7 @@ public:
     void begin();
     void begin(const uint8_t level);
     bool parsePayload(const char *payload);
+    bool presentMessage(const char *topic,const char *payload);
     uint8_t getLevel();
     void decreaseBrightness(uint8_t change);
     void increaseBrightness(uint8_t change);
@@ -46,6 +49,6 @@ public:
     void toggleOnOff();
     const char* getMQTTStateTopic();
     const char* getMQTTTopic();
-    void reportLevel();
+    void reportLevel(uint8_t);
     void setReportCallback(void (*setCallback)(uint8_t));
 };

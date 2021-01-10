@@ -11,44 +11,50 @@ void MqttBaseLight::begin(const uint8_t level)
     setLevel();
 }
 
+bool presentMessage(const char *topic,const char *payload)
+{
+    if(!strncmp(topic,this->getMQTTTopic(),baselength)) {
+        if(!strcmp(&topic[baselength],"/brightness")) {
+            if ( !strcmp(p_payload, "DECREASE") )
+            {
+                decreaseBrightness();
+                setLevel();
+                return true;
+            }
+            else if ( !strcmp(p_payload, "INCREASE") )
+            {
+                increaseBrightness();
+                setLevel();
+                return true;
+            }
+            else
+            {
+                uint8_t bright_val = atof(p_payload);
+                setBrightness(bright_val);
+                setLevel();
+                return true;
+            }
+        }
+        else if(!strcmp(&topic[baselength],"/control")) {
+            if ( !strcmp(p_payload, "ON") )
+            {
+                switchOn();
+                setLevel();
+                return true;
+            }
+            else if ( !strcmp(p_payload, "OFF") )
+            {
+                switchOff();
+                setLevel();
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 bool MqttBaseLight::parsePayload(const char *p_payload)
 {
-    if ( !strcmp(p_payload, "ON") )
-    {
-        setBrightness(lastLevel);
-        setLevel();
-        return true;
-    }
-    else if ( !strcmp(p_payload, "OFF") )
-    {
-        setBrightness(0);
-        setLevel();
-        return true;
-    }
-    else if ( !strcmp(p_payload, "DECREASE") )
-    {
-        decreaseBrightness();
-        setLevel();
-        return true;
-    }
-    else if ( !strcmp(p_payload, "INCREASE") )
-    {
-        increaseBrightness();
-        setLevel();
-        return true;
-    }
-    else
-    {
-        // // Discard 
-        // for (uint8_t i = 0; i<strlen(p_payload);i++) {
-        //     if(p_payload[i] == '.')
-        //         p_payload[i] = 0;
-        // }
-        uint8_t bright_val = atof(p_payload);
-        setBrightness(bright_val);
-        setLevel();
-        return true;
-    }
     return false;
 }
 
@@ -112,8 +118,6 @@ void MqttBaseLight::switchOff()
 {
     if (level>0)
     {
-        
-        
         lastLevel = level;
         level = 0;
     }
@@ -122,13 +126,11 @@ void MqttBaseLight::switchOff()
 void MqttBaseLight::toggleOnOff()
 {
     if (level==0)
-    {
-        
+    {  
         switchOn();
     }
     else
     {
-        
         switchOff();
     }
 }
@@ -143,14 +145,14 @@ const char* MqttBaseLight::getMQTTStateTopic()
     return mqtt_state_topic;
 }
 
-void MqttBaseLight::reportLevel()
+void MqttBaseLight::reportLevel(uint8_t newlevel)
 {
     if (setCallback) {
         setCallback(level);
     }
 
     char pubchar[5];
-    sprintf(pubchar, "%d", (int)(level));
+    sprintf(pubchar, "%d", (int)(newlevel));
     if (mqtt.sendMessage(getMQTTStateTopic(), pubchar, true))
     { ;
     } else
