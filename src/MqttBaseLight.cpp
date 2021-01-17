@@ -73,7 +73,7 @@ void MqttBaseLight::decreaseBrightness(uint8_t changebrightness)
 void MqttBaseLight::increaseBrightness(uint8_t changebrightness)
 {
     if (100 - brightness > changebrightness) {
-        setBrightness(brightness-changebrightness);
+        setBrightness(brightness+changebrightness);
     } else {
         setBrightness(100);
     }
@@ -151,4 +151,8 @@ void MqttBaseLight::report()
 
 void MqttBaseLight::setReportCallback(void (*reportCallback)(uint8_t)) {
     this->reportCallback = reportCallback;
+}
+
+void MqttBaseLight::homeassistantDiscover(const char *name, const char *unique_id)
+{
 }

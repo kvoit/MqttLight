@@ -28,6 +28,8 @@ public:
     void switchOff();
     void toggleOnOff();
 
+    void homeassistantDiscover(const char *name, const char *unique_id);
+
 protected:
     bool state = false;
     uint8_t brightness = 0;
