@@ -5,9 +5,14 @@ MqttMOSFETLight::MqttMOSFETLight(uint8_t pin_a, MqttController &mqtt, const char
         : MqttBaseLight(mqtt, mqtt_topic_base_a, defaultLevel_a, min_pwm_a, max_pwm_a), pin(pin_a)
 { 
     #ifdef ESP32
-    ledcAttachPin(pin_a, channel);
-    pin = channel;
-    #elif
+    if(channel>-1) {
+        ledcAttachPin(pin_a, channel);
+        pin = channel;
+    }
+    if(freq>-1 && res>-1) {
+        ledcSetup(pin, freq, res);
+    }
+    #else
     ;
     #endif
 }
