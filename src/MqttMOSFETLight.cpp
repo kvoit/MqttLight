@@ -1,15 +1,12 @@
+#include<MqttMOSFETLight.hpp>
+
 /* MqttMOSFETLight */
-MqttMOSFETLight::MqttMOSFETLight(uint8_t pin_a, MqttController &mqtt, const char *mqtt_topic_base_a, uint8_t defaultLevel_a, uint16_t min_pwm_a, uint16_t max_pwm_a, int8_t channel, int8_t freq, int8_t res)
+MqttMOSFETLight::MqttMOSFETLight(uint8_t pin_a, MqttController &mqtt, const char *mqtt_topic_base_a, uint8_t defaultLevel_a, uint16_t min_pwm_a, uint16_t max_pwm_a, uint8_t channel)
         : MqttBaseLight(mqtt, mqtt_topic_base_a, defaultLevel_a, min_pwm_a, max_pwm_a), pin(pin_a)
 { 
     #ifdef ESP32
-    if(channel>-1) {
-        ledcAttachPin(pin_a, channel);
-        pin = channel;
-        if(freq>-1 && res>-1) {
-            ledcSetup(channel, freq, res);
-        }
-    }
+    ledcAttachPin(pin_a, channel);
+    pin = channel;
     #elif
     ;
     #endif
