@@ -19,20 +19,19 @@ MqttMOSFETLight::MqttMOSFETLight(uint8_t pin_a, MqttController &mqtt, const char
 
 void MqttMOSFETLight::commit()
 {
+    int value;
+    if(state) {
+        value = NonlinearLight::toPWM(brightness, min_pwm, max_pwm);
+    } else {
+        value = NonlinearLight::toPWM(0, min_pwm, max_pwm);
+    }
+    debugD("Setting PWM to %d", value);
     #ifdef ESP32
-    if(state) {
-        ledcWrite(pin,NonlinearLight::toPWM(brightness, min_pwm, max_pwm));
-    } else {
-        ledcWrite(pin,NonlinearLight::toPWM(0, min_pwm, max_pwm));
-    }
+    ledcWrite(pin,value);
     #elif
-    if(state) {
-        analogWrite(pin,NonlinearLight::toPWM(brightness, min_pwm, max_pwm));
-    } else {
-        analogWrite(pin,NonlinearLight::toPWM(0, min_pwm, max_pwm));
-    }
+    analogWrite(pin,value);
     #endif
-    
+
     report();
 }
 
