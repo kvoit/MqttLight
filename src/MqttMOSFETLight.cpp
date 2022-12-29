@@ -25,7 +25,7 @@ void MqttMOSFETLight::commit()
     } else {
         value = NonlinearLight::toPWM(0, min_pwm, max_pwm);
     }
-    debugD("Setting PWM to %d", value);
+    
     #ifdef ESP32
     ledcWrite(pin,value);
     #elif
