@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <PubSubClient.h>
 #include "NonlinearLight.h" //https://github.com/kvoit/NonlinearLight
 #include <MqttController.hpp>
@@ -9,11 +10,11 @@ class MqttBaseLight : public MqttListener
 {
 public:
     MqttBaseLight(MqttController &mqtt, const char *mqtt_topic, uint8_t brightness, uint16_t min_pwm, uint16_t max_pwm)
-        : MqttListener(mqtt,mqtt_topic), brightness(brightness), min_pwm(min_pwm), max_pwm(max_pwm) 
-    {}; 
+        : MqttListener(mqtt,mqtt_topic), brightness(brightness), min_pwm(min_pwm), max_pwm(max_pwm)
+    {};
 
     uint8_t getBrightness();
-    
+
     void begin();
     void begin(const uint8_t brightness);
 
@@ -28,7 +29,7 @@ public:
     void switchOff();
     void toggleOnOff();
 
-    void homeassistantDiscover(const char *name, const char *unique_id);
+    void homeassistantDiscover(const char *name, const char *unique_id, const char *device_name=NULL, const char *device_unique_id=NULL);
 
 protected:
     bool state = false;
