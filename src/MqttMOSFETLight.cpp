@@ -17,7 +17,7 @@ void MqttMOSFETLight::commit()
     
     #ifdef ESP32
     ledcWrite(pin,value);
-    #elif
+    #else
     analogWrite(pin,value);
     #endif
 
