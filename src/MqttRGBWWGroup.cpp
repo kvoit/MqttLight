@@ -202,7 +202,7 @@ void MqttRGBWWGroup::homeassistantDiscover(const char *name, const char *unique_
         device_unique_id = unique_id;
     }
     char discovery_msg[1024]{};
-    DynamicJsonDocument doc(sizeof(discovery_msg));
+    JsonDocument doc;
 
     doc["name"] = name;
     doc["unique_id"] = unique_id;   
