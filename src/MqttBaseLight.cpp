@@ -163,7 +163,7 @@ void MqttBaseLight::homeassistantDiscover(const char *name, const char *unique_i
     if(device_unique_id==NULL) {
         device_unique_id = unique_id;
     }
-    DynamicJsonDocument doc(1024);
+    JsonDocument doc;
 
     char discovery_msg[1024]{};
 
