@@ -137,7 +137,6 @@ void MqttBaseLight::report()
     } else
     { ;
     }
-    mqtt_controller.handle();
 
     strncpy(&statetopic[baselength],"/brightness",topiclength-baselength-1);
     sprintf(pubchar, "%d", newbrightness);
@@ -146,7 +145,6 @@ void MqttBaseLight::report()
     } else
     { ;
     }
-    mqtt_controller.handle();
 }
 
 void MqttBaseLight::setReportCallback(void (*reportCallback)(uint8_t)) {
@@ -181,11 +179,6 @@ void MqttBaseLight::homeassistantDiscover(const char *name, const char *unique_i
 
     char discovery_topic[128]{};
 
-    mqtt_controller.handle();
-    delay(100);
-    mqtt_controller.handle();
-    delay(100);
-
     snprintf(discovery_topic, sizeof(discovery_topic), "homeassistant/light/mqttlight/light_%s/config", name);
 
     doc["name"] = name;
@@ -201,8 +194,5 @@ void MqttBaseLight::homeassistantDiscover(const char *name, const char *unique_i
     doc["device"]["identifiers"][0] = device_unique_id;
 
     serializeJson(doc, discovery_msg);
-    mqtt_controller.handle();
     mqtt_controller.sendMessage(discovery_topic, discovery_msg, true);
-    delay(50);
-    mqtt_controller.handle();
 }
