@@ -24,6 +24,11 @@ void MqttMOSFETLight::commit()
     report();
 }
 
+void MqttMOSFETLight::begin()
+{
+    begin(brightness);
+}
+
 void MqttMOSFETLight::begin(const uint8_t brightness)
 {
     #ifdef ESP32

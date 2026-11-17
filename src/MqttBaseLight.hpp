@@ -14,22 +14,27 @@ public:
     {};
 
     uint8_t getBrightness();
+    bool switchedOn() { return state; }
 
-    void begin();
-    void begin(const uint8_t brightness);
+    virtual void begin();
+    virtual void begin(const uint8_t brightness);
 
-    bool presentMessage(const char *topic,const char *payload);
+    virtual bool presentMessage(const char *topic,const char *payload);
 
-    void decreaseBrightness(uint8_t change = 4);
-    void increaseBrightness(uint8_t change = 4);
-    void changeBrightness(int8_t change);
-    void setBrightness(int8_t bright_val);
+    // Brightness and on/off state are independent: setting the brightness does not
+    // switch the light on or off, so a brightness can be preset while it is off
+    virtual void decreaseBrightness(uint8_t change = 4);
+    virtual void increaseBrightness(uint8_t change = 4);
+    virtual void changeBrightness(int8_t change);
+    virtual void setBrightness(int8_t bright_val);
 
-    void switchOn();
-    void switchOff();
-    void toggleOnOff();
+    virtual void switchOn();
+    virtual void switchOff();
+    virtual void toggleOnOff();
 
-    void homeassistantDiscover(const char *name, const char *unique_id, const char *device_name=NULL, const char *device_unique_id=NULL);
+    virtual void homeassistantDiscover(const char *name, const char *unique_id, const char *device_name=NULL, const char *device_unique_id=NULL);
+    // Applies brightness and state to the output and reports them
+    virtual void commit() = 0;
 
 protected:
     bool state = false;
@@ -40,7 +45,8 @@ protected:
 
     void (*reportCallback)(uint8_t) = nullptr;
 
-    virtual void commit() = 0;
-    void report();
+    virtual void report();
     void setReportCallback(void (*reportCallback)(uint8_t));
 };
+
+typedef MqttBaseLight* MqttLightPtr;

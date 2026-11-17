@@ -101,12 +101,6 @@ void MqttBaseLight::changeBrightness(int8_t changebrightness)
 void MqttBaseLight::setBrightness(int8_t setbrightness)
 {
     brightness = setbrightness;
-    if(brightness>0) {
-        state = true;
-    } else {
-        state = false;
-    }
-
 }
 
 void MqttBaseLight::switchOn()
