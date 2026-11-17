@@ -193,7 +193,7 @@ void MqttBaseLight::homeassistantDiscover(const char *name, const char *unique_i
     doc["brightness_command_topic"] = brightness_command_topic;
     doc["brightness_scale"] = 100;
     doc["optimistic"] = false;
-    doc["retain"] = true;
+    doc["retain"] = false;
     doc["device"]["name"] = device_name;
     doc["device"]["identifiers"][0] = device_unique_id;
 

@@ -270,7 +270,7 @@ void MqttRGBWWGroup::homeassistantDiscover(const char *name, const char *unique_
 
     doc["brightness_scale"] = 100;
     doc["optimistic"] = false;
-    doc["retain"] = true;
+    doc["retain"] = false;
     doc["device"]["name"] = device_name;
     doc["device"]["identifiers"][0] = device_unique_id;
 
