@@ -29,8 +29,18 @@ bool MqttBaseLight::presentMessage(const char *topic,const char *payload)
             }
             else
             {
-                uint8_t bright_val = atof(payload);
-                setBrightness(bright_val);
+                // Brightness in percent; ignore non-numbers, clamp to 0-100
+                char *end = nullptr;
+                float bright_val = strtof(payload, &end);
+                if (end == payload) {
+                    return true;
+                }
+                if (bright_val < 0) {
+                    bright_val = 0;
+                } else if (bright_val > 100) {
+                    bright_val = 100;
+                }
+                setBrightness((uint8_t)bright_val);
                 commit();
                 return true;
             }

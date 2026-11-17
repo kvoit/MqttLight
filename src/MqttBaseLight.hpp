@@ -38,7 +38,7 @@ protected:
     const uint16_t min_pwm;
     const uint16_t max_pwm;
 
-    void (*reportCallback)(uint8_t);
+    void (*reportCallback)(uint8_t) = nullptr;
 
     virtual void commit() = 0;
     void report();
