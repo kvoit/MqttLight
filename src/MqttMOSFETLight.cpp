@@ -31,22 +31,20 @@ void MqttMOSFETLight::begin()
 
 void MqttMOSFETLight::begin(const uint8_t brightness)
 {
-    #ifdef ESP32
-    if(channel>-1) {
-        Serial.println("ledcAttachPin");
-        ledcAttachPin(pin, channel);
-        pin = channel;
-    }
-    if(freq>-1 && res>-1) {
-        Serial.println("ledcSetup");
-        ledcSetup(pin, freq, res);
-    }
-    #else
-    ;
-    #endif
-
+    // Output low until the first commit()
     digitalWrite(pin, LOW);
     pinMode(pin, OUTPUT);
-    
+
+    #ifdef ESP32
+    if(channel>-1) {
+        if(freq>-1 && res>-1) {
+            ledcSetup(channel, freq, res);
+        }
+        ledcAttachPin(pin, channel);
+        // ledcWrite() takes the channel, so pin holds the channel from here on
+        pin = channel;
+    }
+    #endif
+
     MqttBaseLight::begin(brightness);
 }
